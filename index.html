@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bad Bitch Token | No Apologies. Just Gains.</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600;800&family=Permanent+Marker&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#ff007f",
+                        accent: "#00f2ff",
+                        darkBg: "#000000",
+                        panelBg: "rgba(0, 0, 0, 0.8)",
+                    },
+                    fontFamily: {
+                        display: ["Syncopate", "sans-serif"],
+                        marker: ["Permanent Marker", "cursive"],
+                        sans: ["Inter", "sans-serif"],
+                    },
+                }
+            }
+        };
+    </script>
+    <style>
+        .glitch-text {
+            position: relative;
+            display: inline-block;
+        }
+
+        .glitch-text::before,
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch-text::before {
+            left: 2px;
+            text-shadow: -2px 0 #ff007f;
+            clip-path: inset(45% 0 44% 0);
+            animation: glitch-anim-1 2s infinite linear alternate-reverse;
+        }
+
+        .glitch-text::after {
+            left: -2px;
+            text-shadow: 2px 0 #00f2ff;
+            clip-path: inset(10% 0 85% 0);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim-1 {
+            0% {
+                clip-path: inset(10% 0 80% 0);
+                transform: translate(-2px, 2px);
+            }
+
+            10% {
+                clip-path: inset(30% 0 10% 0);
+                transform: translate(2px, -2px);
+            }
+
+            20% {
+                clip-path: inset(50% 0 30% 0);
+                transform: translate(-2px, 0);
+            }
+
+            30% {
+                clip-path: inset(10% 0 50% 0);
+                transform: translate(2px, 2px);
+            }
+
+            40% {
+                clip-path: inset(80% 0 10% 0);
+                transform: translate(-2px, -2px);
+            }
+
+            50% {
+                clip-path: inset(10% 0 80% 0);
+                transform: translate(0, 0);
+            }
+
+            60% {
+                clip-path: inset(30% 0 10% 0);
+                transform: translate(2px, -2px);
+            }
+
+            70% {
+                clip-path: inset(50% 0 30% 0);
+                transform: translate(-2px, 2px);
+            }
+
+            80% {
+                clip-path: inset(10% 0 50% 0);
+                transform: translate(2px, 0);
+            }
+
+            90% {
+                clip-path: inset(80% 0 10% 0);
+                transform: translate(-2px, -2px);
+            }
+
+            100% {
+                clip-path: inset(10% 0 80% 0);
+                transform: translate(2px, 2px);
+            }
+        }
+
+        @keyframes glitch-anim-2 {
+            0% {
+                clip-path: inset(80% 0 10% 0);
+                transform: translate(2px, -2px);
+            }
+
+            10% {
+                clip-path: inset(10% 0 80% 0);
+                transform: translate(-2px, 2px);
+            }
+
+            20% {
+                clip-path: inset(30% 0 10% 0);
+                transform: translate(0, 0);
+            }
+
+            30% {
+                clip-path: inset(50% 0 30% 0);
+                transform: translate(-2px, -2px);
+            }
+
+            40% {
+                clip-path: inset(10% 0 50% 0);
+                transform: translate(2px, 2px);
+            }
+
+            50% {
+                clip-path: inset(80% 0 10% 0);
+                transform: translate(-2px, 0);
+            }
+
+            60% {
+                clip-path: inset(10% 0 80% 0);
+                transform: translate(2px, -2px);
+            }
+
+            70% {
+                clip-path: inset(30% 0 10% 0);
+                transform: translate(-2px, 2px);
+            }
+
+            80% {
+                clip-path: inset(50% 0 30% 0);
+                transform: translate(2px, 0);
+            }
+
+            90% {
+                clip-path: inset(10% 0 50% 0);
+                transform: translate(-2px, -2px);
+            }
+
+            100% {
+                clip-path: inset(80% 0 10% 0);
+                transform: translate(2px, 2px);
+            }
+        }
+
+        .mesh-bg {
+            background-image: radial-gradient(circle at 2px 2px, #333 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+
+        .glass-panel {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 0, 127, 0.2);
+        }
+
+        .chrome-icon {
+            background: linear-gradient(135deg, #f0f0f0 0%, #a0a0a0 50%, #f0f0f0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
+        }
+    </style>
+    <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "@google/genai": "https://esm.sh/@google/genai@^1.37.0"
+  }
+}
+</script>
+    <link rel="stylesheet" href="/index.css">
+</head>
+
+<body class="bg-darkBg text-white overflow-x-hidden">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>

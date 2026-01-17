@@ -1,0 +1,18 @@
+# Query: darkBg
+# ContextLines: 1
+
+3 results - 2 files
+
+App.tsx:
+  16    return (
+  17:     <div className="min-h-screen relative flex flex-col bg-darkBg">
+  18        {/* Background patterns */}
+
+index.html:
+   18                          accent: "#00f2ff",
+   19:                         darkBg: "#0a0a0a",
+   20                          panelBg: "rgba(10, 10, 10, 0.8)",
+
+  116  </head>
+  117: <body class="bg-darkBg text-white overflow-x-hidden">
+  118      <div id="root"></div>

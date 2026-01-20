@@ -3,6 +3,8 @@ import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import {
   PublicKey,
   Transaction,
+  VersionedTransaction, // Add this
+  TransactionMessage,   // Add this
 } from '@solana/web3.js';
 import {
   createBurnInstruction,
@@ -107,63 +109,90 @@ const Altar: React.FC = () => {
       return;
     }
 
+    const price = tokenData.price;
+    if (!price || price <= 0) {
+      alert('Oracles are silent. Please try again later.');
+      return;
+    }
+
     setIsBurning(true);
     try {
-      const ata = await getAssociatedTokenAddress(tokenMint, publicKey);
-
-      // Calculate amount based on price (placeholder logic for conversion)
-      // If $10 = some amount of BBT, we need the price from somewhere or just a placeholder
-      // For now, let's assume 1 BBT = $0.0001, so $10 = 100,000 BBT
-      const amountToBurn = BigInt(tiers[tier].price * 10_000 * 1_000_000_000); // price * 10k * decimals
-
-      const transaction = new Transaction().add(
-        createBurnInstruction(
-          ata,
-          tokenMint,
-          publicKey,
-          amountToBurn,
-          [],
-          TOKEN_2022_PROGRAM_ID
-        )
+      // 1. Get the Associated Token Account (ATA)
+      const ata = await getAssociatedTokenAddress(
+        tokenMint,
+        publicKey,
+        false,
+        TOKEN_2022_PROGRAM_ID
       );
 
+      // 2. Calculate dynamic amount based on Tier Price
+      const tierPrice = tiers[tier].price;
+      const tokensToBurnUI = tierPrice / price;
+      // Standard SPL decimals is 9, but we use 'createBurnCheckedInstruction' for safety
+      const amountToBurnRaw = BigInt(Math.floor(tokensToBurnUI * 1_000_000_000));
+
+      // 3. Build the Instruction
+      const burnIx = createBurnInstruction(
+        ata,
+        tokenMint,
+        publicKey,
+        amountToBurnRaw,
+        [],
+        TOKEN_2022_PROGRAM_ID
+      );
+
+      // 4. Fetch the latest blockhash
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+
+      // 5. Create the Transaction
+      const messageV0 = new TransactionMessage({
+        payerKey: publicKey,
+        recentBlockhash: blockhash,
+        instructions: [burnIx], // Add Priority Fee instructions here if needed
+      }).compileToV0Message();
+
+      const transaction = new VersionedTransaction(messageV0);
+
+      // 6. Send and Confirm
       const signature = await sendTransaction(transaction, connection);
-      await connection.confirmTransaction(signature, 'processed');
 
-      // Randomization Logic
-      const tierId = tiers[tier].id;
-      const count = VIDEO_COUNTS[tierId];
-      const history = videoHistory[tierId] || [];
+      // Using 'confirmed' is faster and sufficient for UI reveal
+      const confirmation = await connection.confirmTransaction({
+        signature,
+        blockhash,
+        lastValidBlockHeight
+      }, 'confirmed');
 
-      let available = Array.from({ length: count }, (_, i) => i + 1).filter(n => !history.includes(n));
+      if (confirmation.value.err) throw new Error('Transaction failed at the gateway.');
 
-      if (available.length === 0) {
-        available = Array.from({ length: count }, (_, i) => i + 1);
-        setVideoHistory(prev => ({ ...prev, [tierId]: [] }));
-      }
+      // 7. Ritual Success Logic
+      processRitualSuccess(tierPrice, tokensToBurnUI);
 
-      const selected = available[Math.floor(Math.random() * available.length)];
-      const selectedFile = `/videos/${tierId}/${selected}.mp4`;
-
-      setVideoHistory(prev => ({
-        ...prev,
-        [tierId]: [...(prev[tierId] || []), selected]
-      }));
-
-      setCurrentVideo(selectedFile);
-      setRitualState('sacrificing');
-      setBurnedAmount(prev => prev + Number(amountToBurn) / 1_000_000_000);
-
-      // Reveal vertical content 5 seconds into the sacrifice.mp4 flames
-      setTimeout(() => {
-        setRitualState('revealed');
-        setIsBurning(false);
-      }, 5000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Burn failed:', error);
-      alert('The sacrifice failed to reach the gods. (Check balance or wallet)');
+      alert(error?.message || 'The sacrifice failed. Check your $BBT balance.');
+    } finally {
       setIsBurning(false);
     }
+  };
+
+  const processRitualSuccess = (tierPrice: number, amountBurned: number) => {
+    const tierId = tiers[tier].id;
+    const count = VIDEO_COUNTS[tierId];
+    const history = videoHistory[tierId] || [];
+
+    let available = Array.from({ length: count }, (_, i) => i + 1).filter(n => !history.includes(n));
+    if (available.length === 0) available = Array.from({ length: count }, (_, i) => i + 1);
+
+    const selected = available[Math.floor(Math.random() * available.length)];
+    const selectedFile = `/videos/${tierId}/${selected}.mp4`;
+
+    setVideoHistory(prev => ({ ...prev, [tierId]: [...(prev[tierId] || []), selected] }));
+    setCurrentVideo(selectedFile);
+    setRitualState('sacrificing');
+    setBurnedAmount(prev => prev + amountBurned);
+
+    setTimeout(() => setRitualState('revealed'), 5000);
   };
 
   return (
@@ -230,33 +259,8 @@ const Altar: React.FC = () => {
           {/* RITUAL INTERFACE CORE */}
           <div className="flex-1 max-w-2xl w-full relative">
 
-            {/* VAULT GATE OVERLAY */}
-            {connected && userBalance !== null && (userBalance * (tokenData.price || 0)) < 5 && ritualState === 'idle' && (
-              <div className="absolute inset-0 z-[60] backdrop-blur-3xl bg-black/60 border border-primary/40 flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in duration-700">
-                <div className="w-16 h-16 border-2 border-primary rotate-45 flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(255,0,127,0.4)]">
-                  <span className="material-icons text-primary text-3xl -rotate-45">lock</span>
-                </div>
-                <h3 className="text-3xl font-display font-black text-white italic tracking-tighter uppercase mb-4">
-                  Vault <span className="text-primary underline">Gated</span>
-                </h3>
-                <p className="text-zinc-500 font-display text-[10px] tracking-[0.2em] uppercase leading-relaxed max-w-xs mb-8">
-                  The archives remain sealed. You must hold at least <span className="text-white font-bold">$5 USD</span> worth of <span className="text-primary">$BBT</span> to access the digital relics.
-                </p>
-                <div className="flex flex-col gap-4 w-full max-w-[200px]">
-                  <a
-                    href={RAYDIUM_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="py-4 bg-primary text-white font-display font-black text-[10px] tracking-[0.4em] uppercase hover:shadow-[0_0_20px_#ff007f] transition-all"
-                  >
-                    Buy $BBT
-                  </a>
-                  <div className="text-[8px] font-display text-zinc-600 tracking-widest uppercase">
-                    Your Holdings: <span className="text-zinc-400">${(userBalance * (tokenData.price || 0)).toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* VAULT GATE OVERLAY REMOVED */}
+
 
             {/* STATE: IDLE SELECTOR */}
             {ritualState === 'idle' && (

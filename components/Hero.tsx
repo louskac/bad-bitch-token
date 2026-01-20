@@ -1,13 +1,29 @@
 import React, { useState } from 'react';
+import { TOKEN_CA, RAYDIUM_URL, DEX_URL } from '../constants';
+import { useTokenData } from '../hooks/useTokenData';
 
 const Hero: React.FC = () => {
   const [copied, setCopied] = useState(false);
-  const contractAddress = "0x69420BADDIE777c888EdfB1234567890ABCDEF";
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const tokenData = useTokenData();
+  const contractAddress = TOKEN_CA;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(contractAddress);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
   };
 
   return (
@@ -51,7 +67,7 @@ const Hero: React.FC = () => {
           </div>
 
           {/* CA Element */}
-          <div className="mb-10 w-full max-w-lg">
+          <div className="mb-10 w-fit max-w-full">
             <div className="glass-panel p-3 md:p-4 flex items-center justify-between gap-2 md:gap-4 border-primary/40 bg-primary/5 group relative overflow-hidden">
               <div className="absolute inset-0 bg-primary/5 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500"></div>
               <div className="relative z-10 flex flex-col min-w-0">
@@ -69,9 +85,14 @@ const Hero: React.FC = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <button className="bg-primary text-white font-display px-8 py-4 md:px-10 md:py-5 text-sm uppercase tracking-widest font-bold flex items-center justify-center gap-3 group transition-all hover:shadow-[0_0_30px_#ff007f] hover:translate-y-[-2px]">
+            <a
+              href={RAYDIUM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-primary text-white font-display px-8 py-4 md:px-10 md:py-5 text-sm uppercase tracking-widest font-bold flex items-center justify-center gap-3 group transition-all hover:shadow-[0_0_30px_#ff007f] hover:translate-y-[-2px]"
+            >
               BUY $BBT <span className="material-icons text-sm group-hover:translate-x-1 transition-transform">payments</span>
-            </button>
+            </a>
             <button className="border border-white/20 hover:border-primary/50 text-white font-display px-8 py-4 md:px-10 md:py-5 text-sm uppercase tracking-widest transition-all hover:bg-white/5 text-center">
               <a href="#roadmap">UNLOCKED CONTENT</a>
             </button>
@@ -83,36 +104,62 @@ const Hero: React.FC = () => {
 
           <div className="relative group w-full max-w-lg">
             <div
-              className="absolute -inset-1 rounded-[1.5rem] md:rounded-[2.2rem] blur-xl opacity-60 group-hover:opacity-100 transition duration-500"
+              className={`absolute -inset-1 rounded-[1.5rem] md:rounded-[2.2rem] blur-xl opacity-60 group-hover:opacity-100 transition duration-500 ${isPlaying ? 'opacity-40' : ''}`}
               style={{ background: 'conic-gradient(from 0deg, #00f2ff, #ff007f, #00f2ff)' }}
             ></div>
 
-            <div className="relative bg-black rounded-[1.5rem] md:rounded-[2rem] overflow-hidden aspect-[16/10] z-10">
-              <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-40">
-                <source src="https://assets.mixkit.co/videos/preview/mixkit-fashion-model-dancing-in-a-pink-and-blue-light-42173-large.mp4" type="video/mp4" />
+            <div
+              className={`relative bg-black rounded-[1.5rem] md:rounded-[2rem] overflow-hidden transition-all duration-700 ease-in-out cursor-pointer z-10 ${isPlaying ? 'aspect-[9/16] md:scale-105 shadow-[0_0_50px_rgba(255,0,127,0.3)]' : 'aspect-[16/10]'}`}
+              onClick={togglePlay}
+            >
+              <video
+                ref={videoRef}
+                autoPlay
+                loop
+                muted={!isPlaying}
+                playsInline
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${isPlaying ? 'opacity-100' : 'opacity-40'}`}
+              >
+                <source src="/videos/intro.mp4" type="video/mp4" />
               </video>
 
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <button className="w-16 h-16 md:w-20 md:h-20 rounded-full border-[3px] border-primary bg-primary/10 flex items-center justify-center">
-                  <div className="w-0 h-0 border-y-[10px] md:border-y-[12px] border-y-transparent border-l-[16px] md:border-l-[20px] border-l-primary ml-1"></div>
+              <div className={`absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-300 ${isPlaying ? 'opacity-0 hover:opacity-100' : 'opacity-100'}`}>
+                <button className="w-16 h-16 md:w-20 md:h-20 rounded-full border-[3px] border-primary bg-primary/10 flex items-center justify-center backdrop-blur-sm">
+                  <div className={`w-0 h-0 border-y-[10px] md:border-y-[12px] border-y-transparent border-l-[16px] md:border-l-[20px] border-l-primary ml-1 ${isPlaying ? 'hidden' : 'block'}`}></div>
+                  <div className={`flex gap-1 ${isPlaying ? 'block' : 'hidden'}`}>
+                    <div className="w-2 h-8 bg-primary"></div>
+                    <div className="w-2 h-8 bg-primary"></div>
+                  </div>
                 </button>
                 {/* Fixed position for mobile: centered bottom */}
-                <div className="absolute bottom-4 md:bottom-0 md:left-40 w-full md:w-auto text-center font-marker text-primary text-xl md:text-4xl -rotate-[10deg] md:-rotate-[20deg] drop-shadow-[0_2px_12px_rgba(255,0,127,1)] px-4">
-                  Broke Boys Don't Deserve Pussy
+                <div className="absolute bottom-4 -right-10 md:bottom-6 w-full text-center font-marker text-primary text-xl md:text-4xl -rotate-[10deg] drop-shadow-[0_2px_12px_rgba(255,0,127,1)] px-4">
+                  BROKE BOYS DON'T DESERVE PUSSY
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Stats Cards - Changed from 3 cols to 1 on mobile for readability */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-lg">
-            {[['Price', '$0.0004'], ['Mkt Cap', '$24.8M'], ['Holders', '12.4K']].map(([label, val]) => (
-              <div key={label} className="bg-black/90 border border-white/5 p-4 text-center">
-                <div className="text-[10px] font-display uppercase tracking-widest text-gray-500 mb-1">{label}</div>
-                <div className="text-xl font-display font-bold text-white">{val}</div>
+          {/* Stats Cards - Resilient layout for mobile/desktop */}
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center md:justify-end items-stretch gap-2 md:gap-3 w-full max-w-lg">
+            {[
+              ['Price', tokenData.price ? `$${tokenData.price.toFixed(6)}` : null],
+              ['Mkt Cap', tokenData.mktCap ? `$${(tokenData.mktCap / 1000).toFixed(1)}k` : null],
+              ['1h Activity', tokenData.h1Activity !== null ? `${(tokenData.h1Activity).toLocaleString()} TXs` : (tokenData.chainInfo ? `${(tokenData.chainInfo.transactionCount / 1000000000).toFixed(1)}B IXs` : null)]
+            ].map(([label, val], idx) => (
+              <div
+                key={label}
+                className={`glass-panel p-3 md:p-4 min-w-0 text-center flex flex-col justify-center ${idx === 2 ? 'col-span-2 sm:flex-none' : 'flex-1 sm:flex-none sm:min-w-[120px]'}`}
+              >
+                <div className="text-[9px] md:text-[10px] font-display uppercase tracking-widest text-primary/60 mb-1 md:mb-2">
+                  {label === '1h Activity' && tokenData.h1Activity === null && tokenData.chainInfo ? 'Chain TXs' : label}
+                </div>
+                <div className={`text-base md:text-xl font-display font-bold text-white whitespace-nowrap overflow-hidden text-ellipsis ${!val ? 'animate-pulse opacity-50' : ''}`}>
+                  {val || 'LOADING...'}
+                </div>
               </div>
             ))}
           </div>
+
         </div>
       </div>
     </section>

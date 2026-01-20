@@ -1,11 +1,19 @@
 import React from 'react';
+import { useTokenData } from '../hooks/useTokenData';
+import { useUserBalance } from '../hooks/useUserBalance';
 
 const Roadmap: React.FC = () => {
+  const tokenData = useTokenData();
+  const { balance: userBalance } = useUserBalance();
+  const currentMktCap = tokenData.mktCap || 0;
+  const userHoldingsValueUsd = (userBalance || 0) * (tokenData.price || 0);
+  const hasMinHolding = userHoldingsValueUsd >= 5;
+
   const milestones = [
-    { cap: '100K', reward: 'RAW ARCHIVE COMPILATIONS', detail: 'The best unfiltered cuts from the private vault. No edits. No filters.', marker: 'BEST OF BB' },
-    { cap: '200K', reward: 'COMMUNITY ANIME COSPLAY', detail: 'The community votes on the fit. A full cinematic cosplay reveal.', marker: 'YOUR CHOICE' },
-    { cap: '500K', reward: 'THE FIRST FEMALE COLLAB', detail: 'Solo era ends. A historic first-time collaboration with a mystery creator.', marker: 'NEVER SEEN' },
-    { cap: '1M', reward: 'THE ULTIMATE CELIBACY BREACH', detail: 'The celibate streak ends. First male collaboration in history.', marker: 'MALE COLLAB' },
+    { cap: '100K', val: 100000, reward: 'RAW ARCHIVE COMPILATIONS', detail: 'The best unfiltered cuts from the private vault. No edits. No filters.', marker: 'BEST OF BB' },
+    { cap: '200K', val: 200000, reward: 'COMMUNITY ANIME COSPLAY', detail: 'The community votes on the fit. A full cinematic cosplay reveal.', marker: 'YOUR CHOICE' },
+    { cap: '500K', val: 500000, reward: 'THE FIRST FEMALE COLLAB', detail: 'Solo era ends. A historic first-time collaboration with a mystery creator.', marker: 'NEVER SEEN' },
+    { cap: '1M', val: 1000000, reward: 'THE ULTIMATE CELIBACY BREACH', detail: 'The celibate streak ends. First male collaboration in history.', marker: 'MALE COLLAB' },
   ];
 
   return (
@@ -26,7 +34,7 @@ const Roadmap: React.FC = () => {
           <div className="relative border border-white/10 p-5 bg-zinc-950">
             <div className="text-[9px] text-zinc-500 font-display tracking-[0.4em] uppercase mb-1">Current Valuation</div>
             <div className="text-3xl font-display font-black text-white italic">
-              $24,812,042 <span className="text-primary">MC</span>
+              ${tokenData.ready ? Math.round(currentMktCap).toLocaleString() : '---'} <span className="text-primary">MC</span>
             </div>
             {/* Rare Cyan Highlight */}
             <div className="absolute -top-1 -right-1 w-2 h-2 bg-[#00f2ff] rotate-45 shadow-[0_0_8px_#00f2ff]" />
@@ -67,11 +75,22 @@ const Roadmap: React.FC = () => {
 
                       <div className="pt-6 border-t border-white/5 flex flex-col gap-4">
                         <div className="flex justify-between items-center text-[9px] font-display uppercase tracking-[0.3em]">
-                          <span className="text-zinc-600">Access:</span>
-                          <span className="text-primary animate-pulse">ENCRYPTED</span>
+                          <span className="text-zinc-600">Requirement:</span>
+                          <span className={hasMinHolding ? "text-accent" : "text-primary animate-pulse"}>
+                            $5 HOLDING {hasMinHolding ? "✓" : "✗"}
+                          </span>
                         </div>
-                        <button className="w-full py-4 border border-white/10 bg-black font-display text-[10px] uppercase font-black tracking-[0.4em] text-white hover:bg-white hover:text-black transition-all">
-                          Vault Locked
+                        <div className="flex justify-between items-center text-[9px] font-display uppercase tracking-[0.3em]">
+                          <span className="text-zinc-600">Milestone:</span>
+                          <span className={currentMktCap >= m.val ? "text-accent" : "text-primary"}>
+                            {currentMktCap >= m.val ? "DECRYPTED" : "ENCRYPTED"}
+                          </span>
+                        </div>
+                        <button className={`w-full py-4 border border-white/10 bg-black font-display text-[10px] uppercase font-black tracking-[0.4em] text-white transition-all 
+                          ${(currentMktCap >= m.val && hasMinHolding) ? "hover:bg-primary shadow-[0_0_20px_#ff007f]" : "opacity-60 cursor-not-allowed hover:bg-white/5"}`}>
+                          {(currentMktCap >= m.val && hasMinHolding)
+                            ? "Access Vault"
+                            : (currentMktCap < m.val ? "Milestone Locked" : "Hold $5 to Enter")}
                         </button>
                       </div>
                     </div>

@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
+import { TOKEN_CA, EXPLORER_URL } from '../constants';
+import { useTokenData } from '../hooks/useTokenData';
 
 const Tokenomics: React.FC = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const tokenData = useTokenData();
+  const [copied, setCopied] = useState(false);
+
+  const copyCA = () => {
+    navigator.clipboard.writeText(TOKEN_CA);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const data = [
     { label: 'Circulating', value: 80, color: '#ff007f', description: 'Power to the street. Community owned.', startAngle: 0 },
@@ -126,14 +136,27 @@ const Tokenomics: React.FC = () => {
                   <div className="text-[9px] text-primary font-bold tracking-widest uppercase mb-1">Liquidity</div>
                   <div className="text-sm text-white font-display font-bold uppercase">Locked 99Y</div>
                 </div>
-                <div className="pl-2">
-                  <div className="text-[9px] text-primary font-bold tracking-widest uppercase mb-1">Contract</div>
-                  <div className="text-sm text-white font-display font-bold uppercase">Renounced</div>
+                <div className="col-span-2 pt-4 border-t border-white/5">
+                  <div className="text-[9px] text-primary font-bold tracking-widest uppercase mb-1">Official Contract Address</div>
+                  <div className="flex items-center justify-between bg-black/50 p-2 border border-white/5 rounded-sm">
+                    <span className="text-[10px] font-mono text-zinc-400 truncate mr-2">{TOKEN_CA}</span>
+                    <button
+                      onClick={copyCA}
+                      className="text-primary hover:text-white transition-colors p-1"
+                    >
+                      <span className="material-icons text-sm">{copied ? 'check' : 'content_copy'}</span>
+                    </button>
+                  </div>
                 </div>
                 <div className="col-span-2 pt-4 border-t border-white/5 text-center">
-                  <span className="text-lg font-display font-black text-white italic tracking-widest uppercase">
-                    ZERO TAX. <span className="text-primary">ZERO EXCUSES.</span>
-                  </span>
+                  <a
+                    href={EXPLORER_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-lg font-display font-black text-white italic tracking-widest uppercase hover:text-primary transition-colors"
+                  >
+                    View on <span className="text-primary italic">Solana Explorer</span>
+                  </a>
                 </div>
               </div>
             </div>

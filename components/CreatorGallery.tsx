@@ -23,7 +23,7 @@ const CreatorGallery: React.FC = () => {
   ];
 
   return (
-    <section id="utility" className="py-20 px-6 bg-black relative overflow-hidden mt-80">
+    <section id="utility" className="py-20 px-6 bg-black relative overflow-hidden mt-20">
       {/* Grid Overlay to match Hero */}
       <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/asfalt-dark.png')]" />
 
@@ -92,7 +92,7 @@ const CreatorGallery: React.FC = () => {
                 </p>
 
                 <div className="pt-4">
-                  <span className="font-marker text-6xl md:text-6xl text-primary drop-shadow-[0_0_15px_rgba(255,0,127,0.6)] animate-pulse block">
+                  <span className="font-marker text-4xl md:text-6xl text-primary drop-shadow-[0_0_15px_rgba(255,0,127,0.6)] animate-pulse block">
                     STOP WATCHING THE TRAILER
                   </span>
                 </div>

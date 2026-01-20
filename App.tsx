@@ -11,17 +11,12 @@ import Footer from './components/Footer';
 import GeminiChat from './components/GeminiChat';
 
 const App: React.FC = () => {
-  const [walletConnected, setWalletConnected] = useState(false);
-
   return (
     <div className="min-h-screen relative flex flex-col bg-darkBg">
       {/* Background patterns */}
       <div className="fixed inset-0 pointer-events-none opacity-5 mesh-bg z-0" />
-      
-      <Header 
-        connected={walletConnected} 
-        onConnect={() => setWalletConnected(!walletConnected)} 
-      />
+
+      <Header />
 
       <main className="flex-grow z-10 relative">
         <Hero />

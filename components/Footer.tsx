@@ -1,4 +1,5 @@
 import React from 'react';
+import { TOKEN_CA, RAYDIUM_URL, DEX_URL, EXPLORER_URL } from '../constants';
 
 const Footer: React.FC = () => {
   return (
@@ -14,11 +15,11 @@ const Footer: React.FC = () => {
                 UNLOCK THE <span className="text-primary">QUEEN.</span>
               </h2>
               <p className="mt-4 text-zinc-500 font-display text-[10px] uppercase tracking-[0.5em] max-w-sm">
-                Secure your position. Holders receive 10% off all private services listed below.
+                Secure your position on the blockchain.
               </p>
             </div>
 
-            <a href="https://t.me/yourlink" className="w-full md:w-auto px-12 py-6 bg-primary text-black font-display font-black text-xl tracking-[0.3em] uppercase transition-all hover:bg-white hover:scale-105">
+            <a href={RAYDIUM_URL} target="_blank" rel="noopener noreferrer" className="w-full md:w-auto px-12 py-6 bg-primary text-black font-display font-black text-xl tracking-[0.3em] uppercase transition-all hover:bg-white hover:scale-105">
               Initiate Buy
             </a>
 
@@ -84,11 +85,11 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16 opacity-60">
           <div className="text-xl font-display font-black text-white italic">BAD<span className="text-primary">BITCH</span></div>
           <div className="flex flex-col gap-2 text-[9px] uppercase tracking-widest text-zinc-500">
-            <a href="#">Telegram</a>
-            <a href="#">Group</a>
+            <a href={EXPLORER_URL} target="_blank" rel="noopener noreferrer">Solana Explorer</a>
+            <a href={DEX_URL} target="_blank" rel="noopener noreferrer">DexScreener</a>
           </div>
           <div className="flex flex-col gap-2 text-[9px] uppercase tracking-widest text-zinc-500">
-            <a href="#">Reddit</a>
+            <a href={RAYDIUM_URL} target="_blank" rel="noopener noreferrer">Raydium Purchase</a>
             <a href="#">X (Twitter)</a>
           </div>
           <div className="text-[9px] text-zinc-800 uppercase tracking-[0.8em]">© 2024 PROTOCOL</div>

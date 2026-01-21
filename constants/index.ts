@@ -1,4 +1,4 @@
-export const TOKEN_CA = "6Tph3SxbAW12BSJdCevVV9Zujh97X69d5MJ4XjwKmray";
+export const TOKEN_CA = "kBmmF9e3R65qzDoQUJEbwqTDRKfmhUjtN6uXBhFmika";
 
 // Solana RPC Endpoint
 // Switching to PublicNode as Allnodes failed to resolve (DNS issues)

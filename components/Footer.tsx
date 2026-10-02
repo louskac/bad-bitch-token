@@ -1,5 +1,4 @@
 import React from 'react';
-import { TOKEN_CA, RAYDIUM_URL, DEX_URL, EXPLORER_URL } from '../constants';
 
 const Footer: React.FC = () => {
   return (
@@ -11,16 +10,16 @@ const Footer: React.FC = () => {
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between p-10 md:p-16 gap-8 group-hover:bg-zinc-950 transition-colors">
             <div className="text-center md:text-left">
               <h2 className="text-4xl md:text-5xl font-display font-black text-white uppercase italic tracking-tighter leading-[0.9]">
-                PUMP THE <span className="text-primary italic">CHART.</span><br />
+                ENTER THE <span className="text-primary italic">VAULT.</span><br />
                 UNLOCK THE <span className="text-primary">QUEEN.</span>
               </h2>
               <p className="mt-4 text-zinc-500 font-display text-[10px] uppercase tracking-[0.5em] max-w-sm">
-                Secure your position today.
+                Secure your exclusive access today.
               </p>
             </div>
 
-            <a href={RAYDIUM_URL} target="_blank" rel="noopener noreferrer" className="w-full md:w-auto px-12 py-6 bg-primary text-black font-display font-black text-xl tracking-[0.3em] uppercase transition-all hover:bg-white hover:scale-105">
-              Initiate Buy
+            <a href="#the-altar" className="w-full md:w-auto px-12 py-6 bg-primary text-black font-display font-black text-xl tracking-[0.3em] uppercase transition-all hover:bg-white hover:scale-105">
+              Enter The Altar
             </a>
 
             <div className="absolute right-0 top-1/2 -translate-y-1/2 text-[15vw] font-black text-white/[0.02] italic pointer-events-none select-none uppercase">
@@ -30,7 +29,7 @@ const Footer: React.FC = () => {
         </div>
 
         {/* PRICE MENU GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-32">
+        <div id="rates" className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-32">
           {/* Live & Customs */}
           <div className="space-y-6">
             <h3 className="text-primary font-display font-black text-xl uppercase tracking-widest italic">Live & Visuals</h3>
@@ -72,12 +71,12 @@ const Footer: React.FC = () => {
         <div className="mb-24 py-8 border-y border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4">
             <div className="bg-primary/10 text-primary px-4 py-2 text-[10px] font-black uppercase tracking-[0.3em]">
-              10% Holder Discount Active
+              VIP Access Active
             </div>
-            <span className="text-zinc-500 font-display text-[9px] uppercase tracking-widest">Verify holdings on Telegram for discount</span>
+            <span className="text-zinc-500 font-display text-[9px] uppercase tracking-widest">Connect on Telegram for custom inquiries</span>
           </div>
           <div className="text-zinc-400 font-display text-[10px] uppercase tracking-[0.4em]">
-            Primary Terminal: <a href="#" className="text-white hover:text-primary transition-colors underline underline-offset-4">TELEGRAM</a>
+            Primary Terminal: <a href="https://t.me" target="_blank" rel="noopener noreferrer" className="text-white hover:text-primary transition-colors underline underline-offset-4">TELEGRAM</a>
           </div>
         </div>
 
@@ -85,14 +84,14 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16 opacity-60">
           <div className="text-xl font-display font-black text-white italic">BAD<span className="text-primary">BITCH</span></div>
           <div className="flex flex-col gap-2 text-[9px] uppercase tracking-widest text-zinc-500">
-            <a href={EXPLORER_URL} target="_blank" rel="noopener noreferrer">Solana Explorer</a>
-            <a href={DEX_URL} target="_blank" rel="noopener noreferrer">DexScreener</a>
+            <a href="#utility" className="hover:text-primary transition-colors">The Utility</a>
+            <a href="#the-altar" className="hover:text-primary transition-colors">The Altar</a>
           </div>
           <div className="flex flex-col gap-2 text-[9px] uppercase tracking-widest text-zinc-500">
-            <a href={RAYDIUM_URL} target="_blank" rel="noopener noreferrer">Raydium Purchase</a>
-            <a href="#">X (Twitter)</a>
+            <a href="#roadmap" className="hover:text-primary transition-colors">The Hitlist</a>
+            <a href="#rates" className="hover:text-primary transition-colors">VIP Rates</a>
           </div>
-          <div className="text-[9px] text-zinc-800 uppercase tracking-[0.8em]">© 2024 PROTOCOL</div>
+          <div className="text-[9px] text-zinc-800 uppercase tracking-[0.8em]">© 2024 BAD BITCH ARCHIVES</div>
         </div>
       </div>
     </footer>

@@ -1,50 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import {
-  PublicKey,
-  Transaction,
-  VersionedTransaction, // Add this
-  TransactionMessage,   // Add this
-} from '@solana/web3.js';
-import {
-  createBurnInstruction,
-  getAssociatedTokenAddress,
-  getAccount,
-  TokenAccountNotFoundError,
-  TokenInvalidAccountOwnerError,
-  TOKEN_2022_PROGRAM_ID
-} from '@solana/spl-token';
-import { TOKEN_CA, RAYDIUM_URL } from '../constants';
-import { useUserBalance } from '../hooks/useUserBalance';
-import { useTokenData } from '../hooks/useTokenData';
 
 type RitualState = 'idle' | 'sacrificing' | 'revealed';
 
 const Altar: React.FC = () => {
-  const { connection } = useConnection();
-  const { publicKey, sendTransaction, connected } = useWallet();
-  const { balance: userBalance } = useUserBalance();
-  const tokenData = useTokenData();
   const [tier, setTier] = useState(1);
   const [ritualState, setRitualState] = useState<RitualState>('idle');
-  const [burnedAmount, setBurnedAmount] = useState(42882290);
+  const [offeringsCount, setOfferingsCount] = useState(1429);
   const [isBurning, setIsBurning] = useState(false);
   const [currentVideo, setCurrentVideo] = useState<string>('');
-  const [simulatedBurned, setSimulatedBurned] = useState(0);
-
-  // Simulation mode: default enabled so user can demo/record explainer videos smoothly without on-chain failures
-  // Can be disabled by adding ?real=true to the URL
-  const isSimulated = typeof window !== 'undefined'
-    ? new URLSearchParams(window.location.search).get('real') !== 'true'
-    : true;
-
-  // Calculate live displayed balance: uses wallet balance if available or fallback
-  const baseBalance = userBalance !== null ? userBalance : (connected ? null : 4301442.331);
-  const displayBalance = baseBalance !== null ? Math.max(0, baseBalance - simulatedBurned) : null;
 
   const [videoHistory, setVideoHistory] = useState<Record<number, number[]>>(() => {
     try {
-      const saved = localStorage.getItem('bbt_altar_history');
+      const saved = localStorage.getItem('bb_altar_history');
       return saved ? JSON.parse(saved) : { 5: [], 10: [], 25: [] };
     } catch (e) {
       return { 5: [], 10: [], 25: [] };
@@ -52,7 +19,7 @@ const Altar: React.FC = () => {
   });
 
   useEffect(() => {
-    localStorage.setItem('bbt_altar_history', JSON.stringify(videoHistory));
+    localStorage.setItem('bb_altar_history', JSON.stringify(videoHistory));
   }, [videoHistory]);
 
   const VIDEO_COUNTS: Record<number, number> = {
@@ -60,15 +27,6 @@ const Altar: React.FC = () => {
     10: 6,
     25: 4
   };
-
-  const tokenMint = new PublicKey(TOKEN_CA);
-
-  // Sync total burned from global tokenData when it loads
-  useEffect(() => {
-    if (tokenData.totalBurned !== null && ritualState === 'idle') {
-      setBurnedAmount(tokenData.totalBurned);
-    }
-  }, [tokenData.totalBurned, ritualState]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const sacrificeVideoRef = useRef<HTMLVideoElement>(null);
@@ -130,93 +88,16 @@ const Altar: React.FC = () => {
     }
   }, [ritualState, currentVideo]);
 
-  const handleBurn = async () => {
-    if (!isSimulated && (!connected || !publicKey)) {
-      alert('Please connect your Solana wallet first.');
-      return;
-    }
-
-    const price = tokenData.price || 0.000042;
-    if (!price || price <= 0) {
-      alert('Oracles are silent. Please try again later.');
-      return;
-    }
-
+  const handleBurn = () => {
     setIsBurning(true);
 
-    const tierPrice = tiers[tier].price;
-    const tokensToBurnUI = Math.round(tierPrice / price);
-
-    // SIMULATED BURN FLOW (Default for smooth creator video demonstration)
-    if (isSimulated) {
-      setTimeout(() => {
-        setIsBurning(false);
-        setSimulatedBurned(prev => prev + tokensToBurnUI);
-        processRitualSuccess(tierPrice, tokensToBurnUI);
-      }, 1200);
-      return;
-    }
-
-    // REAL ON-CHAIN TRANSACTION FLOW (Used if ?real=true is specified)
-    try {
-      // 1. Get the Associated Token Account (ATA)
-      const ata = await getAssociatedTokenAddress(
-        tokenMint,
-        publicKey!,
-        false,
-        TOKEN_2022_PROGRAM_ID
-      );
-
-      // 2. Calculate dynamic amount based on Tier Price
-      // Standard SPL decimals is 9, but we use 'createBurnCheckedInstruction' for safety
-      const amountToBurnRaw = BigInt(Math.floor(tokensToBurnUI * 1_000_000_000));
-
-      // 3. Build the Instruction
-      const burnIx = createBurnInstruction(
-        ata,
-        tokenMint,
-        publicKey!,
-        amountToBurnRaw,
-        [],
-        TOKEN_2022_PROGRAM_ID
-      );
-
-      // 4. Fetch the latest blockhash
-      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
-
-      // 5. Create the Transaction
-      const messageV0 = new TransactionMessage({
-        payerKey: publicKey!,
-        recentBlockhash: blockhash,
-        instructions: [burnIx], // Add Priority Fee instructions here if needed
-      }).compileToV0Message();
-
-      const transaction = new VersionedTransaction(messageV0);
-
-      // 6. Send and Confirm
-      const signature = await sendTransaction(transaction, connection);
-
-      // Using 'confirmed' is faster and sufficient for UI reveal
-      const confirmation = await connection.confirmTransaction({
-        signature,
-        blockhash,
-        lastValidBlockHeight
-      }, 'confirmed');
-
-      if (confirmation.value.err) throw new Error('Transaction failed at the gateway.');
-
-      // 7. Ritual Success Logic
-      processRitualSuccess(tierPrice, tokensToBurnUI);
-
-    } catch (error: any) {
-      console.error('Burn failed:', error);
-      alert(error?.message || 'The sacrifice failed. Check your $BBT balance.');
-    } finally {
+    setTimeout(() => {
       setIsBurning(false);
-    }
+      processRitualSuccess();
+    }, 1000);
   };
 
-  const processRitualSuccess = (tierPrice: number, amountBurned: number) => {
+  const processRitualSuccess = () => {
     const tierId = tiers[tier].id;
     const count = VIDEO_COUNTS[tierId];
     const history = videoHistory[tierId] || [];
@@ -233,7 +114,7 @@ const Altar: React.FC = () => {
     setVideoHistory(prev => ({ ...prev, [tierId]: [...(prev[tierId] || []), selected] }));
     setCurrentVideo(selectedFile);
     setRitualState('sacrificing');
-    setBurnedAmount(prev => prev + amountBurned);
+    setOfferingsCount(prev => prev + 1);
 
     setTimeout(() => setRitualState('revealed'), 4500);
   };
@@ -241,7 +122,7 @@ const Altar: React.FC = () => {
   return (
     <section id="the-altar" className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-black py-10 md:py-20">
 
-      {/* BACKGROUND VIDEO LAYERS - Locked with absolute & h-full to prevent "doubling" bug */}
+      {/* BACKGROUND VIDEO LAYERS */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
 
         {/* Layer 1: Ambient Loop */}
@@ -261,7 +142,7 @@ const Altar: React.FC = () => {
           autoPlay
           muted
           playsInline
-          key={ritualState !== 'idle' ? 'sacfricicing' : 'idle-off'} // Forces re-render to reset video
+          key={ritualState !== 'idle' ? 'sacfricicing' : 'idle-off'}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${ritualState !== 'idle' ? 'opacity-100' : 'opacity-0'}`}
         >
           <source src="/videos/sacrifice.mp4" type="video/mp4" />
@@ -273,7 +154,7 @@ const Altar: React.FC = () => {
 
       <div className="max-w-7xl mx-auto relative z-30 px-6 w-full">
 
-        {/* HEADER - Original Brand Style */}
+        {/* HEADER */}
         <div className={`text-center mb-12 transition-all duration-1000 ${ritualState === 'revealed' ? 'opacity-0 -translate-y-10' : 'opacity-100'}`}>
           <span className="text-primary font-display text-[10px] tracking-[0.8em] font-black uppercase block mb-4 drop-shadow-[0_0_15px_#ff007f]">
             The Digital Sacrifice
@@ -285,7 +166,7 @@ const Altar: React.FC = () => {
 
         <div className="flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-12">
 
-          {/* LEFT MUSE - Mystical Overlay */}
+          {/* LEFT MUSE */}
           <div className={`hidden lg:block w-[280px] transition-all duration-1000 ${ritualState !== 'idle' ? 'opacity-0 scale-95 blur-md' : 'opacity-100'}`}>
             <div className="aspect-[3/5] border border-white/10 bg-black overflow-hidden group shadow-2xl relative">
               <img
@@ -293,7 +174,6 @@ const Altar: React.FC = () => {
                 className="w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110"
                 alt="Muse"
               />
-              {/* Mystical High-Class Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/20 group-hover:opacity-20 transition-opacity duration-700" />
               <div className="absolute inset-0 ring-1 ring-inset ring-white/10" />
             </div>
@@ -301,9 +181,6 @@ const Altar: React.FC = () => {
 
           {/* RITUAL INTERFACE CORE */}
           <div className="flex-1 max-w-2xl w-full relative">
-
-            {/* VAULT GATE OVERLAY REMOVED */}
-
 
             {/* STATE: IDLE SELECTOR */}
             {ritualState === 'idle' && (
@@ -349,12 +226,6 @@ const Altar: React.FC = () => {
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30"
                     />
                   </div>
-
-                  {(connected || isSimulated) && (
-                    <div className="text-[10px] font-display text-gray-500 tracking-[0.2em] uppercase mb-4">
-                      Balance: <span className="text-white">{displayBalance !== null ? `${displayBalance.toLocaleString(undefined, { maximumFractionDigits: 3 })} $BBT` : 'Loading...'}</span>
-                    </div>
-                  )}
 
                   <button
                     onClick={handleBurn}
@@ -435,7 +306,7 @@ const Altar: React.FC = () => {
             )}
           </div>
 
-          {/* RIGHT MUSE - Mystical Overlay */}
+          {/* RIGHT MUSE */}
           <div className={`hidden lg:block w-[280px] transition-all duration-1000 ${ritualState !== 'idle' ? 'opacity-0 scale-95 blur-md' : 'opacity-100'}`}>
             <div className="aspect-[3/5] border border-white/10 bg-black overflow-hidden group shadow-2xl relative">
               <img
@@ -450,11 +321,11 @@ const Altar: React.FC = () => {
 
         </div>
 
-        {/* FOOTER STATS - Always visible and animated */}
+        {/* FOOTER STATS */}
         <div className="text-center mt-12 transition-all duration-1000">
-          <div className="text-[8px] font-display text-gray-500 tracking-[0.5em] uppercase mb-2">Sacrifice Volume</div>
+          <div className="text-[8px] font-display text-gray-500 tracking-[0.5em] uppercase mb-2">Sacrifices Made</div>
           <div className="text-2xl font-display font-black text-white italic">
-            <AnimatedNumber value={burnedAmount} /> <span className="text-primary tracking-normal font-normal text-sm">$BBT</span>
+            <AnimatedNumber value={offeringsCount} /> <span className="text-primary tracking-normal font-normal text-sm">OFFERINGS</span>
           </div>
         </div>
 
@@ -479,7 +350,7 @@ const AnimatedNumber: React.FC<{ value: number }> = ({ value }) => {
     const animate = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      const ease = 1 - Math.pow(1 - progress, 4); // outQuart
+      const ease = 1 - Math.pow(1 - progress, 4);
 
       const current = Math.floor(start + (end - start) * ease);
       setDisplayValue(current);

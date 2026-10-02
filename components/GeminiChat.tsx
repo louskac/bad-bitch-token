@@ -18,7 +18,7 @@ const GeminiChat: React.FC = () => {
     setLoading(true);
 
     const response = await getMarketInsight(userMsg);
-    setMessages(prev => [...prev, { role: 'bot', text: response || "Quiet... the gains are loading." }]);
+    setMessages(prev => [...prev, { role: 'bot', text: response || "Quiet... the energy is building." }]);
     setLoading(false);
   };
 

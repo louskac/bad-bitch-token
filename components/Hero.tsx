@@ -1,19 +1,8 @@
 import React, { useState } from 'react';
-import { TOKEN_CA, RAYDIUM_URL, DEX_URL } from '../constants';
-import { useTokenData } from '../hooks/useTokenData';
 
 const Hero: React.FC = () => {
-  const [copied, setCopied] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = React.useRef<HTMLVideoElement>(null);
-  const tokenData = useTokenData();
-  const contractAddress = TOKEN_CA;
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(contractAddress);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const togglePlay = () => {
     if (videoRef.current) {
@@ -54,9 +43,9 @@ const Hero: React.FC = () => {
             <span className="text-primary italic block tracking-tighter">JUST GAINS.</span>
           </h1>
 
-          <div className="relative mb-8">
+          <div className="relative mb-10">
             <p className="text-gray-300 text-base md:text-xl max-w-xl font-light leading-relaxed border-l-2 border-primary pl-6">
-              Bad Bitch - the ultimate movement for the bold. Get rewarded for holding with exclusive content drops at scheduled milestones.
+              Bad Bitch - the ultimate movement for the bold. Get rewarded with exclusive, unfiltered content drops at scheduled milestones.
               Don't just watch the game—own it.
             </p>
 
@@ -66,36 +55,19 @@ const Hero: React.FC = () => {
             </div>
           </div>
 
-          {/* CA Element */}
-          <div className="mb-10 w-fit max-w-full">
-            <div className="glass-panel p-3 md:p-4 flex items-center justify-between gap-2 md:gap-4 border-primary/40 bg-primary/5 group relative overflow-hidden">
-              <div className="absolute inset-0 bg-primary/5 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500"></div>
-              <div className="relative z-10 flex flex-col min-w-0">
-                <span className="text-[8px] md:text-[9px] font-display text-primary uppercase tracking-widest mb-1">Official Contract Address</span>
-                <span className="text-[10px] md:text-sm font-mono text-white truncate">{contractAddress}</span>
-              </div>
-              <button
-                onClick={copyToClipboard}
-                className="relative z-10 bg-primary hover:bg-pink-600 text-white px-3 py-2 md:px-4 md:py-2 rounded-sm transition-all active:scale-95 flex items-center gap-2 shrink-0"
-              >
-                <span className="material-icons text-xs md:text-sm">{copied ? 'check' : 'content_copy'}</span>
-                <span className="font-display text-[8px] md:text-[9px] uppercase font-bold tracking-widest">{copied ? 'COPIED' : 'COPY'}</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 mb-4">
             <a
-              href={RAYDIUM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+              href="#the-altar"
               className="bg-primary text-white font-display px-8 py-4 md:px-10 md:py-5 text-sm uppercase tracking-widest font-bold flex items-center justify-center gap-3 group transition-all hover:shadow-[0_0_30px_#ff007f] hover:translate-y-[-2px]"
             >
-              BUY $BBT <span className="material-icons text-sm group-hover:translate-x-1 transition-transform">payments</span>
+              ENTER THE ALTAR <span className="material-icons text-sm group-hover:translate-x-1 transition-transform">bolt</span>
             </a>
-            <button className="border border-white/20 hover:border-primary/50 text-white font-display px-8 py-4 md:px-10 md:py-5 text-sm uppercase tracking-widest transition-all hover:bg-white/5 text-center">
-              <a href="#roadmap">UNLOCKED CONTENT</a>
-            </button>
+            <a
+              href="#roadmap"
+              className="border border-white/20 hover:border-primary/50 text-white font-display px-8 py-4 md:px-10 md:py-5 text-sm uppercase tracking-widest transition-all hover:bg-white/5 text-center flex items-center justify-center"
+            >
+              THE HITLIST
+            </a>
           </div>
         </div>
 
@@ -139,22 +111,22 @@ const Hero: React.FC = () => {
             </div>
           </div>
 
-          {/* Stats Cards - Resilient layout for mobile/desktop */}
+          {/* Highlights Cards - Pure creator vault focus */}
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center md:justify-end items-stretch gap-2 md:gap-3 w-full max-w-lg">
             {[
-              ['Price', tokenData.price ? `$${tokenData.price.toFixed(6)}` : null],
-              ['Mkt Cap', tokenData.mktCap ? `$${(tokenData.mktCap / 1000).toFixed(1)}k` : null],
-              ['1h Activity', tokenData.h1Activity !== null ? `${(tokenData.h1Activity).toLocaleString()} TXs` : (tokenData.chainInfo ? `${(tokenData.chainInfo.transactionCount / 1000000000).toFixed(1)}B IXs` : null)]
+              ['Vault', '20+ EXCLUSIVES'],
+              ['Experience', 'UNFILTERED'],
+              ['Access', 'INSTANT DROPS']
             ].map(([label, val], idx) => (
               <div
                 key={label}
                 className={`glass-panel p-3 md:p-4 min-w-0 text-center flex flex-col justify-center ${idx === 2 ? 'col-span-2 sm:flex-none' : 'flex-1 sm:flex-none sm:min-w-[120px]'}`}
               >
                 <div className="text-[9px] md:text-[10px] font-display uppercase tracking-widest text-primary/60 mb-1 md:mb-2">
-                  {label === '1h Activity' && tokenData.h1Activity === null && tokenData.chainInfo ? 'Chain TXs' : label}
+                  {label}
                 </div>
-                <div className={`text-base md:text-xl font-display font-bold text-white whitespace-nowrap overflow-hidden text-ellipsis ${!val ? 'animate-pulse opacity-50' : ''}`}>
-                  {val || 'LOADING...'}
+                <div className="text-base md:text-xl font-display font-bold text-white whitespace-nowrap overflow-hidden text-ellipsis">
+                  {val}
                 </div>
               </div>
             ))}

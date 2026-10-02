@@ -11,12 +11,12 @@ const CreatorGallery: React.FC = () => {
     {
       url: "/curly.png",
       tag: "UNLOCK MILESTONES",
-      caption: "NEW CONTENT ONLY FOR HOLDERS",
+      caption: "NEW CONTENT ONLY FOR VIPS",
       marker: "NO BROKEBOYS"
     },
     {
       url: "/manifest.png",
-      tag: "BIGGEST HOLDER",
+      tag: "TOP SUPPORTER",
       caption: "PRIVATE LIVESTREAM ACCESS",
       marker: "1# FAN"
     }

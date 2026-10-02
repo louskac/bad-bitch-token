@@ -1,28 +1,28 @@
 import React from 'react';
-import { useTokenData } from '../hooks/useTokenData';
 
 const Stats: React.FC = () => {
-  const tokenData = useTokenData();
-  const targetMktCap = 100000; // $100k target
-
-  const mktCap = tokenData.mktCap || 0;
-  const progressPercent = Math.min((mktCap / targetMktCap) * 100, 100);
+  const progressPercent = 75;
 
   const stats = [
     {
-      label: 'Sacrifice Volume',
-      value: tokenData.totalBurned !== null ? `${Math.floor(tokenData.totalBurned).toLocaleString()}` : 'LOADING...',
-      detail: 'TOTAL $BBT REMOVED',
+      label: 'The Altar',
+      value: '1,420+ OFFERINGS',
+      detail: 'EXCLUSIVE VAULT RELEASES',
       accent: false
     },
     {
-      label: tokenData.ready ? 'Current MKT CAP' : 'Next Milestone',
-      value: tokenData.ready ? `$${Math.round(mktCap).toLocaleString()}` : `$${(targetMktCap / 1000)}k MKT CAP`,
-      detail: tokenData.ready ? 'REAL-TIME DATA' : 'PRIVATE LIFESTYLE VLOG DROP',
+      label: 'Next Milestone',
+      value: 'RAW LIFESTYLE VLOG',
+      detail: 'PHASE 01 PROGRESS',
       accent: true,
       hasProgress: true
     },
-    { label: 'Security', value: 'LIQUIDITY LOCKED', detail: '100% BURNED & VERIFIED', accent: false },
+    {
+      label: 'Privacy & Access',
+      value: '100% EXCLUSIVE',
+      detail: 'UNFILTERED & DIRECT',
+      accent: false
+    },
   ];
 
   return (
@@ -38,7 +38,7 @@ const Stats: React.FC = () => {
           >
             <div className="relative z-10">
               <div className="text-[10px] text-gray-400 font-display uppercase tracking-[0.4em] mb-3">{stat.label}</div>
-              <div className={`text-2xl md:text-4xl font-display font-black tracking-tighter mb-2 text-white ${!tokenData.ready && stat.accent ? 'animate-pulse opacity-50' : ''}`}>
+              <div className="text-2xl md:text-4xl font-display font-black tracking-tighter mb-2 text-white">
                 {stat.value}
               </div>
 

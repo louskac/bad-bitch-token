@@ -8,7 +8,7 @@ const Header: React.FC = () => {
 
   const navItems = [
     { label: 'Utility', href: '#utility' },
-    { label: 'Tokenomics', href: '#tokenomics' },
+    { label: 'Allocation', href: '#allocation' },
     { label: 'The Altar', href: '#the-altar' },
     { label: 'The Roadmap', href: '#roadmap' },
   ];

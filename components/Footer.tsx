@@ -15,7 +15,7 @@ const Footer: React.FC = () => {
                 UNLOCK THE <span className="text-primary">QUEEN.</span>
               </h2>
               <p className="mt-4 text-zinc-500 font-display text-[10px] uppercase tracking-[0.5em] max-w-sm">
-                Secure your position on the blockchain.
+                Secure your position today.
               </p>
             </div>
 
@@ -74,7 +74,7 @@ const Footer: React.FC = () => {
             <div className="bg-primary/10 text-primary px-4 py-2 text-[10px] font-black uppercase tracking-[0.3em]">
               10% Holder Discount Active
             </div>
-            <span className="text-zinc-500 font-display text-[9px] uppercase tracking-widest">Verify tokens on Telegram for discount</span>
+            <span className="text-zinc-500 font-display text-[9px] uppercase tracking-widest">Verify holdings on Telegram for discount</span>
           </div>
           <div className="text-zinc-400 font-display text-[10px] uppercase tracking-[0.4em]">
             Primary Terminal: <a href="#" className="text-white hover:text-primary transition-colors underline underline-offset-4">TELEGRAM</a>

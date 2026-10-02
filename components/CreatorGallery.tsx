@@ -4,7 +4,7 @@ const CreatorGallery: React.FC = () => {
   const shots = [
     {
       url: "/elite.png",
-      tag: "BURN TOKEN",
+      tag: "BURN TO UNLOCK",
       caption: "EXCLUSIVE VIDEOS RIGHT AWAY",
       marker: "BURN THE WEEK"
     },

@@ -4,7 +4,7 @@ import Header from './components/Header';
 import Hero from './components/Hero';
 import Altar from './components/Altar';
 import Stats from './components/Stats';
-import Tokenomics from './components/Tokenomics';
+import Allocation from './components/Allocation';
 import Roadmap from './components/Roadmap';
 import CreatorGallery from './components/CreatorGallery';
 import Footer from './components/Footer';
@@ -22,7 +22,7 @@ const App: React.FC = () => {
         <Hero />
         <Stats />
         <CreatorGallery />
-        <Tokenomics />
+        <Allocation />
         <Altar />
         <Roadmap />
         <GeminiChat />

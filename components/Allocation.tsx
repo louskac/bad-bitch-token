@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TOKEN_CA, EXPLORER_URL } from '../constants';
 import { useTokenData } from '../hooks/useTokenData';
 
-const Tokenomics: React.FC = () => {
+const Allocation: React.FC = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const tokenData = useTokenData();
   const [copied, setCopied] = useState(false);
@@ -31,7 +31,7 @@ const Tokenomics: React.FC = () => {
   };
 
   return (
-    <section id="tokenomics" className="py-16 px-6 bg-black relative overflow-hidden">
+    <section id="allocation" className="py-16 px-6 bg-black relative overflow-hidden">
       <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/asfalt-dark.png')]" />
 
       <div className="max-w-7xl mx-auto relative z-10">
@@ -168,4 +168,4 @@ const Tokenomics: React.FC = () => {
   );
 };
 
-export default Tokenomics;
+export default Allocation;

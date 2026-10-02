@@ -56,7 +56,7 @@ const Hero: React.FC = () => {
 
           <div className="relative mb-8">
             <p className="text-gray-300 text-base md:text-xl max-w-xl font-light leading-relaxed border-l-2 border-primary pl-6">
-              Bad Bitch creator token - the ultimate token for the bold. Get rewarded for holding with exclusive content drops at scheduled milestones.
+              Bad Bitch - the ultimate movement for the bold. Get rewarded for holding with exclusive content drops at scheduled milestones.
               Don't just watch the game—own it.
             </p>
 

@@ -30,6 +30,17 @@ const Altar: React.FC = () => {
   const [burnedAmount, setBurnedAmount] = useState(42882290);
   const [isBurning, setIsBurning] = useState(false);
   const [currentVideo, setCurrentVideo] = useState<string>('');
+  const [simulatedBurned, setSimulatedBurned] = useState(0);
+
+  // Simulation mode: default enabled so user can demo/record explainer videos smoothly without on-chain failures
+  // Can be disabled by adding ?real=true to the URL
+  const isSimulated = typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search).get('real') !== 'true'
+    : true;
+
+  // Calculate live displayed balance: uses wallet balance if available or fallback
+  const baseBalance = userBalance !== null ? userBalance : (connected ? null : 4301442.331);
+  const displayBalance = baseBalance !== null ? Math.max(0, baseBalance - simulatedBurned) : null;
 
   const [videoHistory, setVideoHistory] = useState<Record<number, number[]>>(() => {
     try {
@@ -103,31 +114,60 @@ const Altar: React.FC = () => {
     };
   }, [ritualState]);
 
+  // Ensure sacrifice inferno video plays when entering sacrificing state
+  useEffect(() => {
+    if (ritualState === 'sacrificing' && sacrificeVideoRef.current) {
+      sacrificeVideoRef.current.currentTime = 0;
+      sacrificeVideoRef.current.play().catch(() => { });
+    }
+  }, [ritualState]);
+
+  // Ensure reward video auto-plays when revealed
+  useEffect(() => {
+    if (ritualState === 'revealed' && rewardVideoRef.current) {
+      rewardVideoRef.current.currentTime = 0;
+      rewardVideoRef.current.play().catch(() => { });
+    }
+  }, [ritualState, currentVideo]);
+
   const handleBurn = async () => {
-    if (!connected || !publicKey) {
+    if (!isSimulated && (!connected || !publicKey)) {
       alert('Please connect your Solana wallet first.');
       return;
     }
 
-    const price = tokenData.price;
+    const price = tokenData.price || 0.000042;
     if (!price || price <= 0) {
       alert('Oracles are silent. Please try again later.');
       return;
     }
 
     setIsBurning(true);
+
+    const tierPrice = tiers[tier].price;
+    const tokensToBurnUI = Math.round(tierPrice / price);
+
+    // SIMULATED BURN FLOW (Default for smooth creator video demonstration)
+    if (isSimulated) {
+      setTimeout(() => {
+        setIsBurning(false);
+        setSimulatedBurned(prev => prev + tokensToBurnUI);
+        processRitualSuccess(tierPrice, tokensToBurnUI);
+      }, 1200);
+      return;
+    }
+
+    // REAL ON-CHAIN TRANSACTION FLOW (Used if ?real=true is specified)
     try {
       // 1. Get the Associated Token Account (ATA)
       const ata = await getAssociatedTokenAddress(
         tokenMint,
-        publicKey,
+        publicKey!,
         false,
         TOKEN_2022_PROGRAM_ID
       );
 
       // 2. Calculate dynamic amount based on Tier Price
-      const tierPrice = tiers[tier].price;
-      const tokensToBurnUI = tierPrice / price;
       // Standard SPL decimals is 9, but we use 'createBurnCheckedInstruction' for safety
       const amountToBurnRaw = BigInt(Math.floor(tokensToBurnUI * 1_000_000_000));
 
@@ -135,7 +175,7 @@ const Altar: React.FC = () => {
       const burnIx = createBurnInstruction(
         ata,
         tokenMint,
-        publicKey,
+        publicKey!,
         amountToBurnRaw,
         [],
         TOKEN_2022_PROGRAM_ID
@@ -146,7 +186,7 @@ const Altar: React.FC = () => {
 
       // 5. Create the Transaction
       const messageV0 = new TransactionMessage({
-        payerKey: publicKey,
+        payerKey: publicKey!,
         recentBlockhash: blockhash,
         instructions: [burnIx], // Add Priority Fee instructions here if needed
       }).compileToV0Message();
@@ -182,7 +222,10 @@ const Altar: React.FC = () => {
     const history = videoHistory[tierId] || [];
 
     let available = Array.from({ length: count }, (_, i) => i + 1).filter(n => !history.includes(n));
-    if (available.length === 0) available = Array.from({ length: count }, (_, i) => i + 1);
+    if (available.length === 0) {
+      available = Array.from({ length: count }, (_, i) => i + 1);
+      setVideoHistory(prev => ({ ...prev, [tierId]: [] }));
+    }
 
     const selected = available[Math.floor(Math.random() * available.length)];
     const selectedFile = `/videos/${tierId}/${selected}.mp4`;
@@ -192,7 +235,7 @@ const Altar: React.FC = () => {
     setRitualState('sacrificing');
     setBurnedAmount(prev => prev + amountBurned);
 
-    setTimeout(() => setRitualState('revealed'), 5000);
+    setTimeout(() => setRitualState('revealed'), 4500);
   };
 
   return (
@@ -307,9 +350,9 @@ const Altar: React.FC = () => {
                     />
                   </div>
 
-                  {connected && (
+                  {(connected || isSimulated) && (
                     <div className="text-[10px] font-display text-gray-500 tracking-[0.2em] uppercase mb-4">
-                      Balance: <span className="text-white">{userBalance !== null ? `${userBalance.toLocaleString()} $BBT` : 'Loading...'}</span>
+                      Balance: <span className="text-white">{displayBalance !== null ? `${displayBalance.toLocaleString(undefined, { maximumFractionDigits: 3 })} $BBT` : 'Loading...'}</span>
                     </div>
                   )}
 
@@ -324,12 +367,48 @@ const Altar: React.FC = () => {
               </div>
             )}
 
+            {/* STATE: SACRIFICING INFERNO OVERLAY */}
+            {ritualState === 'sacrificing' && (
+              <div className="bg-black/85 border border-primary/40 p-10 md:p-14 backdrop-blur-3xl shadow-[0_0_80px_rgba(255,0,127,0.35)] relative animate-in fade-in zoom-in duration-700 text-center max-w-xl mx-auto">
+                <div className="absolute -top-1 -left-1 w-10 h-10 border-t border-l border-primary animate-pulse" />
+                <div className="absolute -bottom-1 -right-1 w-10 h-10 border-b border-r border-primary animate-pulse" />
+
+                <div className="w-16 h-16 mx-auto mb-6 relative flex items-center justify-center">
+                  <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping" />
+                  <div className="w-12 h-12 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                  <div className="absolute w-4 h-4 bg-primary rotate-45 shadow-[0_0_15px_#ff007f]" />
+                </div>
+
+                <span className="text-primary font-display text-[10px] tracking-[0.6em] font-black uppercase block mb-3 animate-pulse">
+                  The Void Awakens
+                </span>
+                <h3 className="text-3xl md:text-5xl font-display font-black text-white italic tracking-tighter uppercase mb-4">
+                  Incinerating Offering...
+                </h3>
+                <p className="text-gray-400 font-display text-[10px] tracking-[0.25em] uppercase leading-relaxed mb-6">
+                  Consuming offerings on the digital altar. Channeling relic visions...
+                </p>
+
+                <div className="inline-block px-6 py-2 bg-primary/10 border border-primary/30 text-primary font-display font-black text-xs tracking-[0.3em] uppercase">
+                  {tiers[tier].label} (${tiers[tier].price})
+                </div>
+              </div>
+            )}
+
             {/* STATE: VERTICAL REVEAL */}
             {ritualState === 'revealed' && (
               <div className="flex flex-col items-center animate-in fade-in zoom-in duration-[1000ms]">
                 {/* Vertical Video Locked Frame */}
                 <div className="w-[300px] md:w-[360px] aspect-[9/16] bg-black shadow-[0_0_100px_rgba(255,0,127,0.4)] border border-primary/30 relative overflow-hidden">
-                  <video ref={rewardVideoRef} autoPlay controls className="w-full h-full object-cover">
+                  <video
+                    ref={rewardVideoRef}
+                    key={currentVideo}
+                    src={currentVideo}
+                    autoPlay
+                    controls
+                    playsInline
+                    className="w-full h-full object-cover"
+                  >
                     <source src={currentVideo} type="video/mp4" />
                   </video>
                 </div>
